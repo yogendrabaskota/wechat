@@ -5,6 +5,8 @@ const authRoutes = require("./routes/auth.routes");
 const userRoutes = require("./routes/user.routes");
 const messageRoutes = require("./routes/message.routes");
 const conversationRoutes = require("./routes/conversation.routes");
+const notificationRoutes = require("./routes/notification.routes");
+const groupRoutes = require("./routes/group.routes");
 
 const app = express();
 
@@ -21,6 +23,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/conversations", conversationRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/groups", groupRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Not found" });

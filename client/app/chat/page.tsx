@@ -7,12 +7,13 @@ import { useChatStore } from '@/store/chatStore';
 import { getSocket } from '@/lib/socket';
 import Sidebar from '@/components/Sidebar';
 import ChatWindow from '@/components/ChatWindow';
+import GroupChatWindow from '@/components/GroupChatWindow';
 import type { Conversation, ConversationUser } from '@/store/chatStore';
 
 export default function ChatPage() {
   const router = useRouter();
   const { user, token } = useAuthStore();
-  const { setOnlineUserIds, addOnlineUser, removeOnlineUser, mobileListVisible } = useChatStore();
+  const { setOnlineUserIds, addOnlineUser, removeOnlineUser, mobileListVisible, activeGroup } = useChatStore();
 
   useEffect(() => {
     if (!user || !token) {
@@ -65,7 +66,7 @@ export default function ChatPage() {
           ${!mobileListVisible ? 'max-md:flex' : 'max-md:hidden'}
         `}
       >
-        <ChatWindow />
+        {activeGroup ? <GroupChatWindow /> : <ChatWindow />}
       </div>
     </div>
   );

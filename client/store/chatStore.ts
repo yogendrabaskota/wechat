@@ -8,6 +8,8 @@ export interface Message {
   text: string;
   seen: boolean;
   createdAt: string;
+  deleted?: boolean;
+  deletedAt?: string;
 }
 
 export interface ConversationUser {
@@ -22,6 +24,41 @@ export interface Conversation {
   createdAt: string;
 }
 
+export interface GroupMember {
+  _id: string;
+  name: string;
+  email: string;
+}
+
+export interface Group {
+  _id: string;
+  name: string;
+  createdBy: GroupMember;
+  members: GroupMember[];
+  admins?: GroupMember[];
+  createdAt?: string;
+}
+
+export interface GroupMessage {
+  _id: string;
+  groupId: string;
+  senderId: { _id: string; name: string } | null;
+  text: string;
+  createdAt: string;
+  type?: 'message' | 'system';
+  deleted?: boolean;
+  deletedAt?: string;
+}
+
+export interface NotificationItem {
+  _id: string;
+  type: string;
+  fromUserId: ConversationUser;
+  groupId?: { _id: string; name: string };
+  message?: string;
+  createdAt: string;
+}
+
 interface ChatState {
   conversations: Conversation[];
   activeConversation: Conversation | null;
@@ -29,6 +66,10 @@ interface ChatState {
   activeReceiver: ConversationUser | null;
   onlineUserIds: Set<string>;
   typingUserId: string | null;
+  groups: Group[];
+  activeGroup: Group | null;
+  groupMessages: GroupMessage[];
+  notifications: NotificationItem[];
   setConversations: (list: Conversation[]) => void;
   setActiveConversation: (conv: Conversation | null, receiver: ConversationUser | null) => void;
   setMessages: (messages: Message[]) => void;
@@ -41,6 +82,16 @@ interface ChatState {
   setTypingUser: (userId: string | null, isTyping: boolean) => void;
   mobileListVisible: boolean;
   setMobileListVisible: (visible: boolean) => void;
+  setGroups: (list: Group[]) => void;
+  setActiveGroup: (group: Group | null) => void;
+  setGroupMessages: (messages: GroupMessage[]) => void;
+  addGroupMessage: (message: GroupMessage) => void;
+  setMessageDeleted: (messageId: string) => void;
+  setGroupMessageDeleted: (messageId: string) => void;
+  prependGroup: (group: Group) => void;
+  setNotifications: (list: NotificationItem[]) => void;
+  addNotification: (n: NotificationItem) => void;
+  removeNotification: (id: string) => void;
 }
 
 export const useChatStore = create<ChatState>((set) => ({
@@ -51,6 +102,10 @@ export const useChatStore = create<ChatState>((set) => ({
   onlineUserIds: new Set(),
   typingUserId: null,
   mobileListVisible: true,
+  groups: [],
+  activeGroup: null,
+  groupMessages: [],
+  notifications: [],
 
   setConversations: (list) => set({ conversations: list }),
 
@@ -106,4 +161,36 @@ export const useChatStore = create<ChatState>((set) => ({
     })),
 
   setMobileListVisible: (visible) => set({ mobileListVisible: visible }),
+
+  setGroups: (list) => set({ groups: list }),
+  setActiveGroup: (group) => set({ activeGroup: group }),
+  setGroupMessages: (messages) => set({ groupMessages: messages }),
+  addGroupMessage: (message) =>
+    set((state) => ({ groupMessages: [...state.groupMessages, message] })),
+  setMessageDeleted: (messageId) =>
+    set((state) => ({
+      messages: state.messages.map((m) =>
+        m._id === messageId ? { ...m, deleted: true, deletedAt: new Date().toISOString() } : m
+      ),
+    })),
+  setGroupMessageDeleted: (messageId) =>
+    set((state) => ({
+      groupMessages: state.groupMessages.map((m) =>
+        m._id === messageId ? { ...m, deleted: true, deletedAt: new Date().toISOString() } : m
+      ),
+    })),
+  prependGroup: (group) =>
+    set((state) => {
+      if (state.groups.some((g) => g._id === group._id)) return state;
+      return { groups: [group, ...state.groups] };
+    }),
+  setNotifications: (list) => set({ notifications: list }),
+  addNotification: (n) =>
+    set((state) => ({
+      notifications: [n, ...state.notifications.filter((x) => x._id !== n._id)],
+    })),
+  removeNotification: (id) =>
+    set((state) => ({
+      notifications: state.notifications.filter((x) => x._id !== id),
+    })),
 }));

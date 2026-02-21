@@ -1,19 +1,29 @@
 'use client';
 
 import { useState } from 'react';
-import type { Message } from '@/store/chatStore';
-import { useAuthStore } from '@/store/authStore';
+import type { GroupMessage } from '@/store/chatStore';
 
-interface MessageBubbleProps {
-  message: Message;
+interface GroupMessageBubbleProps {
+  message: GroupMessage;
+  currentUserId?: string;
   onUnsend?: (messageId: string) => void;
 }
 
-export default function MessageBubble({ message, onUnsend }: MessageBubbleProps) {
-  const { user } = useAuthStore();
+export default function GroupMessageBubble({ message, currentUserId, onUnsend }: GroupMessageBubbleProps) {
   const [showUnsend, setShowUnsend] = useState(false);
-  const isOwn = user?._id === message.senderId._id;
+  const isSystem = message.type === 'system';
+  const isOwn = !isSystem && message.senderId && currentUserId === message.senderId._id;
   const deleted = !!message.deleted;
+
+  if (isSystem) {
+    return (
+      <div className="flex justify-center mb-2 px-0.5">
+        <p className="text-xs text-gray-500 dark:text-gray-400 italic px-3 py-1">
+          {message.text}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -30,7 +40,7 @@ export default function MessageBubble({ message, onUnsend }: MessageBubbleProps)
               : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-bl-md'
         }`}
       >
-        {!isOwn && !deleted && (
+        {!isOwn && message.senderId && !deleted && (
           <p className="text-xs opacity-80 mb-0.5">{message.senderId.name}</p>
         )}
         {deleted ? (
@@ -46,7 +56,6 @@ export default function MessageBubble({ message, onUnsend }: MessageBubbleProps)
               hour: '2-digit',
               minute: '2-digit',
             })}
-            {isOwn && !deleted && message.seen && ' · Seen'}
           </p>
           {isOwn && !deleted && onUnsend && (
             <button

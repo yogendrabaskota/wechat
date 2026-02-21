@@ -71,4 +71,30 @@ const sendMessage = async (req, res, next) => {
   }
 };
 
-module.exports = { getOrCreateConversation, sendMessage };
+const unsendMessage = async (req, res, next) => {
+  try {
+    const message = await Message.findById(req.params.messageId);
+    if (!message) {
+      return res.status(404).json({ message: 'Message not found' });
+    }
+    if (message.senderId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'You can only unsend your own messages' });
+    }
+    if (message.deleted) {
+      return res.status(400).json({ message: 'Message already unsent' });
+    }
+    message.deleted = true;
+    message.deletedAt = new Date();
+    await message.save();
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`user:${message.receiverId.toString()}`).emit('message_unsent', { messageId: message._id });
+      io.to(`user:${message.senderId.toString()}`).emit('message_unsent', { messageId: message._id });
+    }
+    res.json({ message: 'Message unsent' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { getOrCreateConversation, sendMessage, unsendMessage };

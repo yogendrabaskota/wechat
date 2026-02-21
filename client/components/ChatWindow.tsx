@@ -5,6 +5,7 @@ import { useChatStore } from '@/store/chatStore';
 import MessageBubble from './MessageBubble';
 import { getSocket } from '@/lib/socket';
 import { useAuthStore } from '@/store/authStore';
+import api from '@/lib/axios';
 
 const TYPING_DEBOUNCE_MS = 400;
 const TYPING_STOP_MS = 1500;
@@ -16,6 +17,7 @@ export default function ChatWindow() {
     messages,
     addMessage,
     setMessageSeen,
+    setMessageDeleted,
     activeConversation,
     typingUserId,
     setTypingUser,
@@ -42,16 +44,21 @@ export default function ChatWindow() {
     const onTyping = (payload: { userId: string; typing: boolean }) => {
       setTypingUser(payload.userId, payload.typing);
     };
+    const onUnsent = (payload: { messageId: string }) => {
+      setMessageDeleted(payload.messageId);
+    };
     socket.on('new_message', onNew);
     socket.on('message_seen', onSeen);
     socket.on('user_typing', onTyping);
+    socket.on('message_unsent', onUnsent);
     return () => {
       socket.off('new_message', onNew);
       socket.off('message_seen', onSeen);
       socket.off('user_typing', onTyping);
+      socket.off('message_unsent', onUnsent);
       setTypingUser(activeReceiver._id, false);
     };
-  }, [token, activeReceiver, addMessage, setMessageSeen, setTypingUser]);
+  }, [token, activeReceiver, addMessage, setMessageSeen, setTypingUser, setMessageDeleted]);
 
   useEffect(() => {
     setTypingUser(null, false);
@@ -131,6 +138,15 @@ export default function ChatWindow() {
 
   const setMobileListVisible = useChatStore((s) => s.setMobileListVisible);
 
+  const handleUnsend = async (messageId: string) => {
+    try {
+      await api.post(`/api/messages/unsend/${messageId}`);
+      setMessageDeleted(messageId);
+    } catch {
+      // ignore
+    }
+  };
+
   if (!activeReceiver) {
     return (
       <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400 px-4 text-center">
@@ -141,16 +157,17 @@ export default function ChatWindow() {
 
   return (
     <div className="flex-1 flex flex-col bg-white dark:bg-gray-900 min-h-0">
-      <div className="shrink-0 px-3 md:px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2 min-h-[56px] safe-area-top">
+      <div className="shrink-0 px-2 md:px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2 min-h-[56px] safe-area-top">
         <button
           type="button"
           onClick={() => setMobileListVisible(true)}
-          className="md:hidden shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center -ml-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 active:opacity-80 text-gray-600 dark:text-gray-400"
+          className="flex md:hidden shrink-0 min-h-[44px] pr-2 -ml-1 flex items-center gap-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 active:opacity-80 text-gray-700 dark:text-gray-300 font-medium"
           aria-label="Back to conversations"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
+          <span className="text-sm">Back</span>
         </button>
         <div className="flex-1 min-w-0">
           <span className="font-semibold text-gray-900 dark:text-gray-100 block truncate text-base">
@@ -164,7 +181,7 @@ export default function ChatWindow() {
 
       <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-1 overscroll-contain">
         {messages.map((msg) => (
-          <MessageBubble key={msg._id} message={msg} />
+          <MessageBubble key={msg._id} message={msg} onUnsend={handleUnsend} />
         ))}
         {typingUserId === activeReceiver._id && (
           <div className="flex justify-start mb-2">

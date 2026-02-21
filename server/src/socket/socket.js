@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const { redisClient } = require('../config/redis');
 const Message = require('../models/Message');
+const Group = require('../models/Group');
+const GroupMessage = require('../models/GroupMessage');
 
 const ONLINE_KEY = 'chat:online';
 const CONV_CACHE_PREFIX = 'chat:conv:';
@@ -57,6 +59,9 @@ const setupSocket = (io) => {
   io.on('connection', async (socket) => {
     await setUserOnline(socket.userId);
     socket.join(`user:${socket.userId}`);
+
+    const userGroups = await Group.find({ members: socket.userId }).select('_id').lean();
+    userGroups.forEach((g) => socket.join(`group:${g._id}`));
 
     const onlineIds = await getOnlineUsers();
     io.emit('user_online', { userId: socket.userId, onlineIds });
@@ -118,6 +123,33 @@ const setupSocket = (io) => {
           userId: socket.userId,
           typing: false,
         });
+      }
+    });
+
+    socket.on('send_group_message', async (payload) => {
+      try {
+        const { groupId, text } = payload || {};
+        if (!groupId || !text?.trim()) return;
+        const group = await Group.findById(groupId);
+        if (!group || !group.members.some((m) => m.toString() === socket.userId)) return;
+        const msg = await GroupMessage.create({
+          groupId,
+          senderId: socket.userId,
+          text: text.trim(),
+        });
+        const populated = await GroupMessage.findById(msg._id)
+          .populate('senderId', '_id name')
+          .lean();
+        io.to(`group:${groupId}`).emit('new_group_message', populated);
+      } catch (err) {
+        socket.emit('error', { message: err.message });
+      }
+    });
+
+    socket.on('join_group_room', async (groupId) => {
+      const group = await Group.findById(groupId);
+      if (group && group.members.some((m) => m.toString() === socket.userId)) {
+        socket.join(`group:${groupId}`);
       }
     });
   });
