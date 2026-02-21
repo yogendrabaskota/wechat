@@ -12,7 +12,7 @@ import type { Conversation, ConversationUser } from '@/store/chatStore';
 export default function ChatPage() {
   const router = useRouter();
   const { user, token } = useAuthStore();
-  const { setOnlineUserIds, addOnlineUser, removeOnlineUser } = useChatStore();
+  const { setOnlineUserIds, addOnlineUser, removeOnlineUser, mobileListVisible } = useChatStore();
 
   useEffect(() => {
     if (!user || !token) {
@@ -47,9 +47,26 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="h-screen flex">
-      <Sidebar onSelectConversation={handleSelectConversation} />
-      <ChatWindow />
+    <div className="h-screen flex overflow-hidden">
+      <div
+        className={`
+          w-full flex flex-col border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800
+          md:w-80 md:shrink-0
+          max-md:absolute max-md:inset-0 max-md:z-10
+          ${mobileListVisible ? 'max-md:flex' : 'max-md:hidden'}
+        `}
+      >
+        <Sidebar onSelectConversation={handleSelectConversation} />
+      </div>
+      <div
+        className={`
+          flex-1 flex flex-col min-w-0 bg-white dark:bg-gray-900
+          max-md:absolute max-md:inset-0 max-md:z-20
+          ${!mobileListVisible ? 'max-md:flex' : 'max-md:hidden'}
+        `}
+      >
+        <ChatWindow />
+      </div>
     </div>
   );
 }

@@ -24,6 +24,7 @@ export default function Sidebar({ onSelectConversation }: SidebarProps) {
     activeConversation,
     onlineUserIds,
     prependConversation,
+    setMobileListVisible,
   } = useChatStore();
 
   const loadConversations = useCallback(async () => {
@@ -50,6 +51,7 @@ export default function Sidebar({ onSelectConversation }: SidebarProps) {
       setActiveConversation(data.conversation, selected);
       setMessages(data.messages || []);
       onSelectConversation(data.conversation, selected);
+      setMobileListVisible(false);
     } catch {
       setConversations([]);
     }
@@ -70,16 +72,28 @@ export default function Sidebar({ onSelectConversation }: SidebarProps) {
     return other || null;
   };
 
+  const handleConversationClick = (conv: Conversation, other: ConversationUser) => {
+    setActiveConversation(conv, other);
+    setMessages([]);
+    api
+      .get<{ conversation: Conversation; messages: Message[] }>(`/api/messages/${other._id}`)
+      .then(({ data }) => {
+        setMessages(data.messages || []);
+        onSelectConversation(data.conversation, other);
+        setMobileListVisible(false);
+      });
+  };
+
   return (
-    <div className="w-80 flex flex-col border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-        <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+    <div className="w-full md:w-80 h-full flex flex-col bg-gray-50 dark:bg-gray-800">
+      <div className="p-3 md:p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between gap-2 min-h-[56px] safe-area-top">
+        <span className="font-semibold text-gray-900 dark:text-gray-100 truncate text-base">
           {user?.name}
         </span>
         <button
           type="button"
           onClick={handleLogout}
-          className="text-sm text-red-600 hover:text-red-700"
+          className="text-sm text-red-600 hover:text-red-700 active:opacity-80 shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center -m-2 p-2"
         >
           Logout
         </button>
@@ -108,26 +122,15 @@ export default function Sidebar({ onSelectConversation }: SidebarProps) {
               <li key={conv._id}>
                 <button
                   type="button"
-                  onClick={() => {
-                    setActiveConversation(conv, other);
-                    setMessages([]);
-                    api
-                      .get<{ conversation: Conversation; messages: Message[] }>(
-                        `/api/messages/${other._id}`
-                      )
-                      .then(({ data }) => {
-                        setMessages(data.messages || []);
-                        onSelectConversation(data.conversation, other);
-                      });
-                  }}
-                  className={`w-full text-left px-3 py-2.5 flex items-center gap-2 rounded-lg mx-2 ${
+                  onClick={() => handleConversationClick(conv, other)}
+                  className={`w-full text-left px-3 py-3 md:py-2.5 flex items-center gap-3 rounded-lg mx-2 min-h-[56px] md:min-h-0 active:opacity-90 ${
                     isActive
                       ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200'
                       : 'hover:bg-gray-200 dark:hover:bg-gray-700'
                   }`}
                 >
                   <span className="relative flex shrink-0">
-                    <span className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <span className="w-10 h-10 md:w-8 md:h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-sm font-medium text-gray-700 dark:text-gray-300">
                       {other.name.charAt(0).toUpperCase()}
                     </span>
                     {isOnline && (
@@ -135,7 +138,7 @@ export default function Sidebar({ onSelectConversation }: SidebarProps) {
                     )}
                   </span>
                   <span className="flex-1 min-w-0">
-                    <span className="block truncate font-medium text-gray-900 dark:text-gray-100">
+                    <span className="block truncate font-medium text-gray-900 dark:text-gray-100 text-base md:text-sm">
                       {other.name}
                     </span>
                     <span className="block truncate text-xs text-gray-500 dark:text-gray-400">

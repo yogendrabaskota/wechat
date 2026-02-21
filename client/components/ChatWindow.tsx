@@ -129,26 +129,40 @@ export default function ChatWindow() {
     inputRef.current?.focus();
   };
 
+  const setMobileListVisible = useChatStore((s) => s.setMobileListVisible);
+
   if (!activeReceiver) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400">
+      <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400 px-4 text-center">
         Select a conversation or search for a user to start chatting
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-white dark:bg-gray-900">
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
-        <span className="font-semibold text-gray-900 dark:text-gray-100">
-          {activeReceiver.name}
-        </span>
-        <span className="text-sm text-gray-500 dark:text-gray-400">
-          {activeReceiver.email}
-        </span>
+    <div className="flex-1 flex flex-col bg-white dark:bg-gray-900 min-h-0">
+      <div className="shrink-0 px-3 md:px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2 min-h-[56px] safe-area-top">
+        <button
+          type="button"
+          onClick={() => setMobileListVisible(true)}
+          className="md:hidden shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center -ml-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 active:opacity-80 text-gray-600 dark:text-gray-400"
+          aria-label="Back to conversations"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <div className="flex-1 min-w-0">
+          <span className="font-semibold text-gray-900 dark:text-gray-100 block truncate text-base">
+            {activeReceiver.name}
+          </span>
+          <span className="text-sm text-gray-500 dark:text-gray-400 truncate block">
+            {activeReceiver.email}
+          </span>
+        </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-1">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-1 overscroll-contain">
         {messages.map((msg) => (
           <MessageBubble key={msg._id} message={msg} />
         ))}
@@ -162,7 +176,7 @@ export default function ChatWindow() {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex gap-2">
+      <div className="shrink-0 p-3 md:p-4 border-t border-gray-200 dark:border-gray-700 flex gap-2 safe-area-bottom">
         <input
           ref={inputRef}
           type="text"
@@ -170,13 +184,13 @@ export default function ChatWindow() {
           value={input}
           onChange={handleInputChange}
           onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-          className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="flex-1 min-h-[44px] px-4 py-3 md:py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
         <button
           type="button"
           onClick={sendMessage}
           disabled={!input.trim()}
-          className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+          className="min-h-[44px] min-w-[44px] px-4 py-3 md:py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 active:opacity-90 disabled:opacity-50 flex items-center justify-center"
         >
           Send
         </button>

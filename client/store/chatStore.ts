@@ -39,6 +39,8 @@ interface ChatState {
   removeOnlineUser: (userId: string) => void;
   prependConversation: (conv: Conversation) => void;
   setTypingUser: (userId: string | null, isTyping: boolean) => void;
+  mobileListVisible: boolean;
+  setMobileListVisible: (visible: boolean) => void;
 }
 
 export const useChatStore = create<ChatState>((set) => ({
@@ -48,6 +50,7 @@ export const useChatStore = create<ChatState>((set) => ({
   activeReceiver: null,
   onlineUserIds: new Set(),
   typingUserId: null,
+  mobileListVisible: true,
 
   setConversations: (list) => set({ conversations: list }),
 
@@ -101,4 +104,6 @@ export const useChatStore = create<ChatState>((set) => ({
           ? null
           : state.typingUserId,
     })),
+
+  setMobileListVisible: (visible) => set({ mobileListVisible: visible }),
 }));

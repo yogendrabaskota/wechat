@@ -37,8 +37,8 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 shadow-lg">
+    <main className="min-h-screen flex items-center justify-center p-4 safe-area-top safe-area-bottom">
+      <div className="w-full max-w-md rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 sm:p-8 shadow-lg">
         <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
@@ -56,7 +56,7 @@ export default function RegisterPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-blue-500"
+              className="w-full min-h-[48px] px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-base focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
@@ -69,7 +69,7 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-blue-500"
+              className="w-full min-h-[48px] px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-base focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
@@ -83,13 +83,13 @@ export default function RegisterPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-blue-500"
+              className="w-full min-h-[48px] px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-base focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+            className="w-full min-h-[48px] py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 active:opacity-90 disabled:opacity-50"
           >
             {loading ? 'Creating account...' : 'Register'}
           </button>
