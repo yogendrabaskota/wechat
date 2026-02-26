@@ -150,19 +150,19 @@ export default function ChatWindow() {
 
   if (!activeReceiver) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400 px-4 text-center">
+      <div className="flex-1 flex items-center justify-center bg-slate-50 text-slate-500 px-4 text-center">
         Select a conversation or search for a user to start chatting
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-white dark:bg-gray-900 min-h-0">
-      <div className="shrink-0 px-2 md:px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2 min-h-[56px] safe-area-top">
+    <div className="flex-1 flex flex-col bg-white min-h-0">
+      <div className="shrink-0 px-2 md:px-4 py-3 border-b border-slate-200 flex items-center gap-2 min-h-[56px] safe-area-top bg-white">
         <button
           type="button"
           onClick={() => setMobileListVisible(true)}
-          className="flex md:hidden shrink-0 min-h-[44px] pr-2 -ml-1 flex items-center gap-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 active:opacity-80 text-gray-700 dark:text-gray-300 font-medium"
+          className="flex md:hidden shrink-0 min-h-[44px] pr-2 -ml-1 flex items-center gap-1.5 rounded-xl hover:bg-slate-100 active:opacity-80 text-slate-700 font-medium"
           aria-label="Back to conversations"
         >
           <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -172,22 +172,22 @@ export default function ChatWindow() {
         </button>
         <Avatar src={activeReceiver.profilePic} name={activeReceiver.name} size="sm" className="shrink-0 md:w-8 md:h-8" />
         <div className="flex-1 min-w-0">
-          <span className="font-semibold text-gray-900 dark:text-gray-100 block truncate text-base">
+          <span className="font-semibold text-slate-800 block truncate text-base">
             {activeReceiver.name}
           </span>
-          <span className="text-sm text-gray-500 dark:text-gray-400 truncate block">
+          <span className="text-sm text-slate-500 truncate block">
             {activeReceiver.email}
           </span>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-1 overscroll-contain">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-1 overscroll-contain bg-slate-50/30">
         {messages.map((msg) => (
           <MessageBubble key={msg._id} message={msg} onUnsend={handleUnsend} />
         ))}
         {typingUserId === activeReceiver._id && (
           <div className="flex justify-start mb-2">
-            <span className="px-3 py-1.5 rounded-full bg-gray-200 dark:bg-gray-700 text-sm text-gray-600 dark:text-gray-400 italic">
+            <span className="px-3 py-1.5 rounded-full bg-slate-200 text-sm text-slate-600 italic">
               {activeReceiver.name} is typing...
             </span>
           </div>
@@ -195,7 +195,7 @@ export default function ChatWindow() {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="shrink-0 p-3 md:p-4 border-t border-gray-200 dark:border-gray-700 flex gap-2 safe-area-bottom">
+      <div className="shrink-0 p-3 md:p-4 border-t border-slate-200 flex gap-2 safe-area-bottom bg-white">
         <input
           ref={inputRef}
           type="text"
@@ -203,7 +203,7 @@ export default function ChatWindow() {
           value={input}
           onChange={handleInputChange}
           onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-          className="flex-1 min-h-[44px] px-4 py-3 md:py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="flex-1 min-h-[44px] px-4 py-3 md:py-2 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-base placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
         />
         <button
           type="button"

@@ -6,14 +6,12 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const uploadImage = async (base64Data) => {
+const uploadImage = async (base64Data, folder = 'chat-app') => {
   if (!base64Data || typeof base64Data !== 'string') return null;
   const trimmed = base64Data.trim();
   if (!trimmed.startsWith('data:image')) return null;
   try {
-    const result = await cloudinary.uploader.upload(trimmed, {
-      folder: 'chat-app',
-    });
+    const result = await cloudinary.uploader.upload(trimmed, { folder });
     return result.secure_url;
   } catch (err) {
     console.error('Cloudinary upload error:', err.message);

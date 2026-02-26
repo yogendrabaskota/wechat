@@ -30,7 +30,7 @@ export default function Avatar({ src, name, size = 'md', className = '' }: Avata
 
   return (
     <span
-      className={`rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center font-medium text-gray-700 dark:text-gray-300 shrink-0 ${sizeClass} ${className}`}
+      className={`rounded-full bg-slate-200 flex items-center justify-center font-medium text-slate-600 shrink-0 ${sizeClass} ${className}`}
     >
       {initial}
     </span>

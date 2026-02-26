@@ -24,4 +24,17 @@ const searchUsers = async (req, res, next) => {
   }
 };
 
-module.exports = { getMe, searchUsers };
+const getUserById = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId).select('_id name email profilePic').lean();
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { getMe, searchUsers, getUserById };

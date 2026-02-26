@@ -77,12 +77,12 @@ export default function GroupChatWindow() {
   if (!activeGroup) return null;
 
   return (
-    <div className="flex-1 flex flex-col bg-white dark:bg-gray-900 min-h-0">
-      <div className="shrink-0 px-2 md:px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2 min-h-[56px] safe-area-top">
+    <div className="flex-1 flex flex-col bg-white min-h-0">
+      <div className="shrink-0 px-2 md:px-4 py-3 border-b border-slate-200 flex items-center gap-2 min-h-[56px] safe-area-top bg-white">
         <button
           type="button"
           onClick={() => setMobileListVisible(true)}
-          className="flex md:hidden shrink-0 min-h-[44px] pr-2 -ml-1 flex items-center gap-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 active:opacity-80 text-gray-700 dark:text-gray-300 font-medium"
+          className="flex md:hidden shrink-0 min-h-[44px] pr-2 -ml-1 flex items-center gap-1.5 rounded-xl hover:bg-slate-100 active:opacity-80 text-slate-700 font-medium"
           aria-label="Back"
         >
           <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,7 +94,7 @@ export default function GroupChatWindow() {
           src={activeGroup.profilePic}
           name={activeGroup.name}
           size="sm"
-          className="shrink-0 w-10 h-10 md:w-8 md:h-8 rounded-full bg-purple-500 dark:bg-purple-600 text-white [&>img]:rounded-full"
+          className="shrink-0 w-10 h-10 md:w-8 md:h-8 rounded-full bg-indigo-500 text-white [&>img]:rounded-full"
         />
         <div
           className="flex-1 min-w-0 cursor-pointer"
@@ -104,10 +104,10 @@ export default function GroupChatWindow() {
           tabIndex={0}
           aria-label="Group info"
         >
-          <span className="font-semibold text-gray-900 dark:text-gray-100 block truncate text-base">
+          <span className="font-semibold text-slate-800 block truncate text-base">
             {activeGroup.name}
           </span>
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+          <span className="text-xs text-slate-500">
             {activeGroup.members?.length || 0} members
           </span>
         </div>
@@ -119,7 +119,7 @@ export default function GroupChatWindow() {
         onLeave={() => setMobileListVisible(true)}
       />
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-1 overscroll-contain">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-1 overscroll-contain bg-slate-50/30">
         {groupMessages.map((msg) => (
           <GroupMessageBubble
             key={msg._id}
@@ -131,7 +131,7 @@ export default function GroupChatWindow() {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="shrink-0 p-3 md:p-4 border-t border-gray-200 dark:border-gray-700 flex gap-2 safe-area-bottom">
+      <div className="shrink-0 p-3 md:p-4 border-t border-slate-200 flex gap-2 safe-area-bottom bg-white">
         <input
           ref={inputRef}
           type="text"
@@ -139,7 +139,7 @@ export default function GroupChatWindow() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-          className="flex-1 min-h-[44px] px-4 py-3 md:py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="flex-1 min-h-[44px] px-4 py-3 md:py-2 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-base placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
         />
         <button
           type="button"

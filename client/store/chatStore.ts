@@ -58,8 +58,11 @@ export interface NotificationItem {
   type: string;
   fromUserId: ConversationUser;
   groupId?: { _id: string; name: string; profilePic?: string | null };
+  postId?: string;
+  friendRequestId?: string;
   message?: string;
   createdAt: string;
+  read?: boolean;
 }
 
 interface ChatState {
@@ -95,6 +98,7 @@ interface ChatState {
   setNotifications: (list: NotificationItem[]) => void;
   addNotification: (n: NotificationItem) => void;
   removeNotification: (id: string) => void;
+  markNotificationsRead: () => void;
 }
 
 export const useChatStore = create<ChatState>((set) => ({
@@ -195,5 +199,9 @@ export const useChatStore = create<ChatState>((set) => ({
   removeNotification: (id) =>
     set((state) => ({
       notifications: state.notifications.filter((x) => x._id !== id),
+    })),
+  markNotificationsRead: () =>
+    set((state) => ({
+      notifications: state.notifications.map((n) => ({ ...n, read: true })),
     })),
 }));

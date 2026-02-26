@@ -3,6 +3,8 @@ const { redisClient } = require('../config/redis');
 const Message = require('../models/Message');
 const Group = require('../models/Group');
 const GroupMessage = require('../models/GroupMessage');
+const Notification = require('../models/Notification');
+const User = require('../models/User');
 
 const ONLINE_KEY = 'chat:online';
 const CONV_CACHE_PREFIX = 'chat:conv:';
@@ -88,6 +90,23 @@ const setupSocket = (io) => {
           .lean();
         io.to(`user:${receiverId}`).emit('new_message', populated);
         socket.emit('new_message', populated);
+
+        const textSnippet = text.trim().length > 50 ? text.trim().slice(0, 50) + '...' : text.trim();
+        const notif = await Notification.create({
+          userId: receiverId,
+          type: 'message',
+          fromUserId: socket.userId,
+          message: textSnippet ? `${populated.senderId?.name || 'Someone'} sent you a message: ${textSnippet}` : `${populated.senderId?.name || 'Someone'} sent you a message`,
+        });
+        const fromUser = await User.findById(socket.userId).select('_id name email profilePic').lean();
+        io.to(`user:${receiverId}`).emit('new_notification', {
+          _id: notif._id,
+          type: 'message',
+          fromUserId: fromUser,
+          message: notif.message,
+          createdAt: notif.createdAt,
+          read: false,
+        });
       } catch (err) {
         socket.emit('error', { message: err.message });
       }

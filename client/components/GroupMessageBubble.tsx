@@ -19,7 +19,7 @@ export default function GroupMessageBubble({ message, currentUserId, onUnsend }:
   if (isSystem) {
     return (
       <div className="flex justify-center mb-2 px-0.5">
-        <p className="text-xs text-gray-500 dark:text-gray-400 italic px-3 py-1">
+        <p className="text-xs text-slate-500 italic px-3 py-1">
           {message.text}
         </p>
       </div>
@@ -41,19 +41,19 @@ export default function GroupMessageBubble({ message, currentUserId, onUnsend }:
         />
       )}
       <div
-        className={`max-w-[85%] sm:max-w-[75%] px-4 py-2.5 rounded-2xl ${
+        className={`max-w-[85%] sm:max-w-[75%] px-4 py-2.5 rounded-2xl shadow-sm ${
           deleted
-            ? 'bg-gray-100 dark:bg-gray-700/50 italic'
+            ? 'bg-slate-100 italic'
             : isOwn
               ? 'bg-blue-600 text-white rounded-br-md'
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-bl-md'
+              : 'bg-white border border-slate-200 text-slate-800 rounded-bl-md'
         }`}
       >
         {!isOwn && message.senderId && !deleted && (
-          <p className="text-xs opacity-80 mb-0.5">{message.senderId.name}</p>
+          <p className="text-xs text-slate-500 mb-0.5">{message.senderId.name}</p>
         )}
         {deleted ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-slate-500">
             {isOwn ? 'You unsent this message' : 'This message was unsent'}
           </p>
         ) : (

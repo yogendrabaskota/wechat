@@ -129,16 +129,16 @@ export default function CreateGroupModal({ open, onClose }: CreateGroupModalProp
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-      <div className="w-full max-w-md rounded-xl bg-white dark:bg-gray-800 shadow-xl max-h-[90vh] flex flex-col">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-          <h2 className="font-semibold text-gray-900 dark:text-gray-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-2xl bg-white shadow-xl max-h-[90vh] flex flex-col border border-slate-200">
+        <div className="p-4 border-b border-slate-200 flex items-center justify-between">
+          <h2 className="font-semibold text-slate-800">
             {step === 1 ? 'Create group' : 'Group name'}
           </h2>
           <button
             type="button"
             onClick={handleClose}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
+            className="p-2 rounded-xl hover:bg-slate-100 text-slate-500 hover:text-slate-700"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -148,7 +148,7 @@ export default function CreateGroupModal({ open, onClose }: CreateGroupModalProp
 
         <div className="flex-1 overflow-y-auto p-4">
           {error && (
-            <p className="mb-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">
+            <p className="mb-3 text-sm text-red-600 bg-red-50 px-3 py-2 rounded-xl">
               {error}
             </p>
           )}
@@ -162,7 +162,7 @@ export default function CreateGroupModal({ open, onClose }: CreateGroupModalProp
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && search()}
-                  className="flex-1 min-h-[44px] px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-base"
+                  className="flex-1 min-h-[44px] px-3 py-2 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-base focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                 />
                 <button
                   type="button"
@@ -181,7 +181,7 @@ export default function CreateGroupModal({ open, onClose }: CreateGroupModalProp
                         type="button"
                         onClick={() => addUser(user)}
                         disabled={selected.some((u) => u._id === user._id)}
-                        className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex justify-between items-center disabled:opacity-50"
+                        className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-50 flex justify-between items-center disabled:opacity-50"
                       >
                         <span className="font-medium">{user.name}</span>
                         {selected.some((u) => u._id === user._id) ? (
@@ -192,13 +192,13 @@ export default function CreateGroupModal({ open, onClose }: CreateGroupModalProp
                   ))}
                 </ul>
               )}
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Selected ({selected.length})</p>
+              <p className="text-sm text-slate-500 mb-2">Selected ({selected.length})</p>
               {selected.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-4">
                   {selected.map((u) => (
                     <span
                       key={u._id}
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-sm"
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-medium"
                     >
                       {u.name}
                       <button
@@ -226,11 +226,11 @@ export default function CreateGroupModal({ open, onClose }: CreateGroupModalProp
                 ← Back
               </button>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Group picture (optional)
                 </label>
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-14 h-14 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 shrink-0">
+                  <div className="flex items-center justify-center w-14 h-14 rounded-full overflow-hidden bg-slate-100 shrink-0">
                     {groupPicPreview ? (
                       <img src={groupPicPreview} alt="Group" className="w-full h-full object-cover" />
                     ) : (
@@ -248,7 +248,7 @@ export default function CreateGroupModal({ open, onClose }: CreateGroupModalProp
                     <button
                       type="button"
                       onClick={() => groupPicInputRef.current?.click()}
-                      className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                      className="text-sm text-blue-600 hover:underline font-medium"
                     >
                       Choose image
                     </button>
@@ -259,7 +259,7 @@ export default function CreateGroupModal({ open, onClose }: CreateGroupModalProp
                           setGroupPicFile(null);
                           setGroupPicPreview(null);
                         }}
-                        className="block text-sm text-gray-500 hover:underline mt-0.5"
+                        className="block text-sm text-slate-500 hover:underline mt-0.5"
                       >
                         Remove
                       </button>
@@ -267,7 +267,7 @@ export default function CreateGroupModal({ open, onClose }: CreateGroupModalProp
                   </div>
                 </div>
               </div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 Group name
               </label>
               <input
@@ -275,18 +275,18 @@ export default function CreateGroupModal({ open, onClose }: CreateGroupModalProp
                 placeholder="Enter group name"
                 value={groupName}
                 onChange={(e) => setGroupName(e.target.value)}
-                className="w-full min-h-[48px] px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-base mb-2"
+                className="w-full min-h-[48px] px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 text-base mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               />
             </>
           )}
         </div>
 
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="p-4 border-t border-slate-200">
           {step === 1 ? (
             <button
               type="button"
               onClick={handleDone}
-              className="w-full min-h-[48px] rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-medium"
+              className="w-full min-h-[48px] rounded-xl bg-blue-600 text-white hover:bg-blue-700 font-medium"
             >
               Done
             </button>

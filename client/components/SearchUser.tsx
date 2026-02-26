@@ -34,7 +34,7 @@ export default function SearchUser({ onSelectUser }: SearchUserProps) {
   }, [query]);
 
   return (
-    <div className="p-2 md:p-2 border-b border-gray-200 dark:border-gray-700">
+    <div className="p-2 md:p-2 border-b border-slate-200">
       <div className="flex gap-2">
         <input
           type="text"
@@ -42,13 +42,13 @@ export default function SearchUser({ onSelectUser }: SearchUserProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && search()}
-          className="flex-1 min-h-[44px] px-3 py-2.5 md:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="flex-1 min-h-[44px] px-3 py-2.5 md:py-2 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-base placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
         />
         <button
           type="button"
           onClick={search}
           disabled={loading}
-          className="min-h-[44px] min-w-[44px] px-4 py-2.5 md:py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 active:opacity-90 disabled:opacity-50"
+          className="min-h-[44px] min-w-[44px] px-4 py-2.5 md:py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 active:opacity-90 disabled:opacity-50"
         >
           {loading ? '...' : 'Search'}
         </button>
@@ -64,13 +64,13 @@ export default function SearchUser({ onSelectUser }: SearchUserProps) {
                   setQuery('');
                   setResults([]);
                 }}
-                className="w-full text-left px-3 py-3 min-h-[48px] rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 active:opacity-90 flex items-center gap-3"
+                className="w-full text-left px-3 py-3 min-h-[48px] rounded-xl hover:bg-slate-50 active:opacity-90 flex items-center gap-3"
               >
                 <Avatar src={user.profilePic} name={user.name} size="sm" className="shrink-0" />
-                <span className="flex-1 min-w-0 font-medium text-gray-900 dark:text-gray-100 truncate">
+                <span className="flex-1 min-w-0 font-medium text-slate-800 truncate">
                   {user.name}
                 </span>
-                <span className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[40%] shrink-0">
+                <span className="text-sm text-slate-500 truncate max-w-[40%] shrink-0">
                   {user.email}
                 </span>
               </button>

@@ -8,7 +8,7 @@ const listMy = async (req, res, next) => {
       userId: req.user._id,
       $or: [
         { type: 'group_invite', status: 'pending' },
-        { type: { $in: ['group_invite_accepted', 'group_invite_rejected', 'group_member_left'] } },
+        { type: { $in: ['group_invite_accepted', 'group_invite_rejected', 'group_member_left', 'post_like', 'post_comment', 'message', 'friend_request', 'friend_request_accepted'] } },
       ],
     })
       .sort({ createdAt: -1 })
@@ -127,4 +127,16 @@ const declineInvite = async (req, res, next) => {
   }
 };
 
-module.exports = { listMy, acceptInvite, declineInvite };
+const markAllRead = async (req, res, next) => {
+  try {
+    await Notification.updateMany(
+      { userId: req.user._id, read: false },
+      { $set: { read: true } }
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { listMy, acceptInvite, declineInvite, markAllRead };

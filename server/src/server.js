@@ -20,9 +20,17 @@ const io = new Server(server, {
 app.set('io', io);
 setupSocket(io);
 
+const { cleanupTrashedPosts } = require('./controllers/post.controller');
+
+const TRASH_CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
 const start = async () => {
   await connectDB();
   await connectRedis();
+  await cleanupTrashedPosts().catch((err) => console.error('[posts] Initial trash cleanup failed:', err));
+  setInterval(() => {
+    cleanupTrashedPosts().catch((err) => console.error('[posts] Trash cleanup failed:', err));
+  }, TRASH_CLEANUP_INTERVAL_MS);
   server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });

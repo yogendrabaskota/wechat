@@ -1,23 +1,22 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useEffect, useCallback, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { useChatStore, type Conversation, type ConversationUser, type Message, type Group } from '@/store/chatStore';
 import SearchUser from './SearchUser';
-import Notifications from './Notifications';
 import CreateGroupModal from './CreateGroupModal';
 import Avatar from './Avatar';
 import api from '@/lib/axios';
-import { disconnectSocket, getSocket } from '@/lib/socket';
 
 interface SidebarProps {
   onSelectConversation: (conv: Conversation, other: ConversationUser) => void;
+  /** When true (e.g. inside ChatModal), header is compact (avatar + name only). When false, show "Back to feed" link. */
+  embedded?: boolean;
 }
 
-export default function Sidebar({ onSelectConversation }: SidebarProps) {
-  const router = useRouter();
-  const { user, token, logout } = useAuthStore();
+export default function Sidebar({ onSelectConversation, embedded = false }: SidebarProps) {
+  const { user } = useAuthStore();
   const {
     conversations,
     setConversations,
@@ -33,7 +32,6 @@ export default function Sidebar({ onSelectConversation }: SidebarProps) {
     onlineUserIds,
     prependConversation,
     setMobileListVisible,
-    addNotification,
   } = useChatStore();
   const [createGroupOpen, setCreateGroupOpen] = useState(false);
 
@@ -62,16 +60,6 @@ export default function Sidebar({ onSelectConversation }: SidebarProps) {
     loadGroups();
   }, [loadConversations, loadGroups]);
 
-  useEffect(() => {
-    if (!token) return;
-    const socket = getSocket(token);
-    const onNotif = (n: Parameters<typeof addNotification>[0]) => {
-      addNotification(n);
-    };
-    socket.on('new_notification', onNotif);
-    return () => socket.off('new_notification', onNotif);
-  }, [token, addNotification]);
-
   const handleSelectUser = async (selected: ConversationUser) => {
     try {
       setActiveGroup(null);
@@ -86,16 +74,6 @@ export default function Sidebar({ onSelectConversation }: SidebarProps) {
       setMobileListVisible(false);
     } catch {
       setConversations([]);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await api.post('/api/auth/logout');
-    } finally {
-      logout();
-      disconnectSocket();
-      router.push('/login');
     }
   };
 
@@ -128,39 +106,31 @@ export default function Sidebar({ onSelectConversation }: SidebarProps) {
   };
 
   return (
-    <div className="w-full md:w-80 h-full flex flex-col bg-gray-50 dark:bg-gray-800">
-      <div className="p-3 md:p-4 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2 min-h-[56px] safe-area-top">
+    <div className="w-full h-full min-w-0 flex flex-col bg-white border-r border-slate-200 overflow-hidden">
+      <div className="p-3 md:p-4 border-b border-slate-200 flex items-center gap-2 min-h-[56px] safe-area-top">
         <Avatar src={user?.profilePic} name={user?.name ?? ''} size="sm" className="shrink-0" />
-        <span className="font-semibold text-gray-900 dark:text-gray-100 truncate text-base flex-1 min-w-0">
+        <span className="font-semibold text-slate-800 truncate text-base flex-1 min-w-0">
           {user?.name}
         </span>
-        <Notifications />
-        <button
-          type="button"
-          onClick={handleLogout}
-          className="text-sm text-red-600 hover:text-red-700 active:opacity-80 shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center -m-2 p-2"
-        >
-          Logout
-        </button>
       </div>
 
       <SearchUser onSelectUser={handleSelectUser} />
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden">
         <div className="px-3 py-2 flex items-center justify-between">
-          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
             Chats
           </p>
           <button
             type="button"
             onClick={() => setCreateGroupOpen(true)}
-            className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+            className="text-xs font-medium text-blue-600 hover:text-blue-700"
           >
             New group
           </button>
         </div>
         {conversations.length === 0 && (
-          <p className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+          <p className="px-3 py-2 text-sm text-slate-500">
             No conversations yet. Search for a user to start.
           </p>
         )}
@@ -177,10 +147,10 @@ export default function Sidebar({ onSelectConversation }: SidebarProps) {
                 <button
                   type="button"
                   onClick={() => handleConversationClick(conv, other)}
-                  className={`w-full text-left px-3 py-3 md:py-2.5 flex items-center gap-3 rounded-lg mx-2 min-h-[56px] md:min-h-0 active:opacity-90 ${
+                  className={`w-full text-left px-3 py-3 md:py-2.5 flex items-center gap-3 rounded-xl mx-2 min-h-[56px] md:min-h-0 active:opacity-90 ${
                     isActive
-                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200'
-                      : 'hover:bg-gray-200 dark:hover:bg-gray-700'
+                      ? 'bg-blue-50 text-blue-700'
+                      : 'hover:bg-slate-50 text-slate-800'
                   }`}
                 >
                   <span className="relative flex shrink-0">
@@ -191,14 +161,14 @@ export default function Sidebar({ onSelectConversation }: SidebarProps) {
                       className="w-10 h-10 md:w-8 md:h-8"
                     />
                     {isOnline && (
-                      <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-gray-50 dark:border-gray-800 rounded-full" />
+                      <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full" />
                     )}
                   </span>
                   <span className="flex-1 min-w-0">
-                    <span className="block truncate font-medium text-gray-900 dark:text-gray-100 text-base md:text-sm">
+                    <span className="block truncate font-medium text-slate-800 text-base md:text-sm">
                       {other.name}
                     </span>
-                    <span className="block truncate text-xs text-gray-500 dark:text-gray-400">
+                    <span className="block truncate text-xs text-slate-500">
                       {other.email}
                     </span>
                   </span>
@@ -207,11 +177,11 @@ export default function Sidebar({ onSelectConversation }: SidebarProps) {
             );
           })}
         </ul>
-        <p className="px-3 py-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+        <p className="px-3 py-2 text-xs font-medium text-slate-500 uppercase tracking-wide">
           Groups
         </p>
         {groups.length === 0 && (
-          <p className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+          <p className="px-3 py-2 text-sm text-slate-500">
             No groups yet. Create one or accept an invite.
           </p>
         )}
@@ -223,23 +193,23 @@ export default function Sidebar({ onSelectConversation }: SidebarProps) {
                 <button
                   type="button"
                   onClick={() => handleGroupClick(group)}
-                  className={`w-full text-left px-3 py-3 md:py-2.5 flex items-center gap-3 rounded-lg mx-2 min-h-[56px] md:min-h-0 active:opacity-90 ${
+                  className={`w-full text-left px-3 py-3 md:py-2.5 flex items-center gap-3 rounded-xl mx-2 min-h-[56px] md:min-h-0 active:opacity-90 ${
                     isActive
-                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200'
-                      : 'hover:bg-gray-200 dark:hover:bg-gray-700'
+                      ? 'bg-blue-50 text-blue-700'
+                      : 'hover:bg-slate-50 text-slate-800'
                   }`}
                 >
                   <Avatar
                     src={group.profilePic}
                     name={group.name}
                     size="md"
-                    className="w-10 h-10 md:w-8 md:h-8 rounded-full bg-purple-500 dark:bg-purple-600 text-white font-medium [&>img]:rounded-full"
+                    className="w-10 h-10 md:w-8 md:h-8 rounded-full bg-indigo-500 text-white font-medium [&>img]:rounded-full"
                   />
                   <span className="flex-1 min-w-0">
-                    <span className="block truncate font-medium text-gray-900 dark:text-gray-100 text-base md:text-sm">
+                    <span className="block truncate font-medium text-slate-800 text-base md:text-sm">
                       {group.name}
                     </span>
-                    <span className="block truncate text-xs text-gray-500 dark:text-gray-400">
+                    <span className="block truncate text-xs text-slate-500">
                       {group.members?.length || 0} members
                     </span>
                   </span>
