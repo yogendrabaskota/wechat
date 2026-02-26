@@ -4,6 +4,7 @@ import { useState } from 'react';
 import api from '@/lib/axios';
 import { useChatStore, type Group } from '@/store/chatStore';
 import { useAuthStore } from '@/store/authStore';
+import Avatar from './Avatar';
 
 interface GroupInfoModalProps {
   group: Group;
@@ -85,11 +86,19 @@ export default function GroupInfoModal({ group, open, onClose, onLeave }: GroupI
             </svg>
           </button>
         </div>
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <p className="font-medium text-gray-900 dark:text-gray-100">{group.name}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {group.members?.length || 0} members · Created by {typeof group.createdBy === 'object' && group.createdBy ? group.createdBy.name : '—'}
-          </p>
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center gap-3">
+          <Avatar
+            src={group.profilePic}
+            name={group.name}
+            size="lg"
+            className="w-14 h-14 rounded-full bg-purple-500 dark:bg-purple-600 text-white [&>img]:rounded-full shrink-0"
+          />
+          <div className="min-w-0">
+            <p className="font-medium text-gray-900 dark:text-gray-100">{group.name}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {group.members?.length || 0} members · Created by {typeof group.createdBy === 'object' && group.createdBy ? group.createdBy.name : '—'}
+            </p>
+          </div>
         </div>
         {error && (
           <div className="mx-4 mt-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">
@@ -110,7 +119,13 @@ export default function GroupInfoModal({ group, open, onClose, onLeave }: GroupI
                   key={id}
                   className="flex items-center justify-between gap-2 py-2 px-3 rounded-lg bg-gray-50 dark:bg-gray-700/50"
                 >
-                  <div className="min-w-0">
+                  <Avatar
+                    src={typeof member === 'object' && member && 'profilePic' in member ? (member as { profilePic?: string | null }).profilePic : null}
+                    name={name}
+                    size="sm"
+                    className="shrink-0"
+                  />
+                  <div className="min-w-0 flex-1">
                     <span className="font-medium text-gray-900 dark:text-gray-100 block truncate">
                       {name}
                       {admin && (

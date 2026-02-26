@@ -83,8 +83,8 @@ const setupSocket = (io) => {
           text: text.trim(),
         });
         const populated = await Message.findById(message._id)
-          .populate('senderId', '_id name')
-          .populate('receiverId', '_id name')
+          .populate('senderId', '_id name profilePic')
+          .populate('receiverId', '_id name profilePic')
           .lean();
         io.to(`user:${receiverId}`).emit('new_message', populated);
         socket.emit('new_message', populated);
@@ -138,7 +138,7 @@ const setupSocket = (io) => {
           text: text.trim(),
         });
         const populated = await GroupMessage.findById(msg._id)
-          .populate('senderId', '_id name')
+          .populate('senderId', '_id name profilePic')
           .lean();
         io.to(`group:${groupId}`).emit('new_group_message', populated);
       } catch (err) {

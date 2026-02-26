@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { useChatStore } from '@/store/chatStore';
 import MessageBubble from './MessageBubble';
+import Avatar from './Avatar';
 import { getSocket } from '@/lib/socket';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/axios';
@@ -169,6 +170,7 @@ export default function ChatWindow() {
           </svg>
           <span className="text-sm">Back</span>
         </button>
+        <Avatar src={activeReceiver.profilePic} name={activeReceiver.name} size="sm" className="shrink-0 md:w-8 md:h-8" />
         <div className="flex-1 min-w-0">
           <span className="font-semibold text-gray-900 dark:text-gray-100 block truncate text-base">
             {activeReceiver.name}

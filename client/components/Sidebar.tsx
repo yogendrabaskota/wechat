@@ -7,6 +7,7 @@ import { useChatStore, type Conversation, type ConversationUser, type Message, t
 import SearchUser from './SearchUser';
 import Notifications from './Notifications';
 import CreateGroupModal from './CreateGroupModal';
+import Avatar from './Avatar';
 import api from '@/lib/axios';
 import { disconnectSocket, getSocket } from '@/lib/socket';
 
@@ -128,7 +129,8 @@ export default function Sidebar({ onSelectConversation }: SidebarProps) {
 
   return (
     <div className="w-full md:w-80 h-full flex flex-col bg-gray-50 dark:bg-gray-800">
-      <div className="p-3 md:p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between gap-2 min-h-[56px] safe-area-top">
+      <div className="p-3 md:p-4 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2 min-h-[56px] safe-area-top">
+        <Avatar src={user?.profilePic} name={user?.name ?? ''} size="sm" className="shrink-0" />
         <span className="font-semibold text-gray-900 dark:text-gray-100 truncate text-base flex-1 min-w-0">
           {user?.name}
         </span>
@@ -182,9 +184,12 @@ export default function Sidebar({ onSelectConversation }: SidebarProps) {
                   }`}
                 >
                   <span className="relative flex shrink-0">
-                    <span className="w-10 h-10 md:w-8 md:h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {other.name.charAt(0).toUpperCase()}
-                    </span>
+                    <Avatar
+                      src={other.profilePic}
+                      name={other.name}
+                      size="md"
+                      className="w-10 h-10 md:w-8 md:h-8"
+                    />
                     {isOnline && (
                       <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-gray-50 dark:border-gray-800 rounded-full" />
                     )}
@@ -224,9 +229,12 @@ export default function Sidebar({ onSelectConversation }: SidebarProps) {
                       : 'hover:bg-gray-200 dark:hover:bg-gray-700'
                   }`}
                 >
-                  <span className="flex shrink-0 w-10 h-10 md:w-8 md:h-8 rounded-full bg-purple-500 dark:bg-purple-600 flex items-center justify-center text-sm font-medium text-white">
-                    {group.name.charAt(0).toUpperCase()}
-                  </span>
+                  <Avatar
+                    src={group.profilePic}
+                    name={group.name}
+                    size="md"
+                    className="w-10 h-10 md:w-8 md:h-8 rounded-full bg-purple-500 dark:bg-purple-600 text-white font-medium [&>img]:rounded-full"
+                  />
                   <span className="flex-1 min-w-0">
                     <span className="block truncate font-medium text-gray-900 dark:text-gray-100 text-base md:text-sm">
                       {group.name}

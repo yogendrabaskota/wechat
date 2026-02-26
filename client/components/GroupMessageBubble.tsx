@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { GroupMessage } from '@/store/chatStore';
+import Avatar from './Avatar';
 
 interface GroupMessageBubbleProps {
   message: GroupMessage;
@@ -27,10 +28,18 @@ export default function GroupMessageBubble({ message, currentUserId, onUnsend }:
 
   return (
     <div
-      className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mb-2 px-0.5 group`}
+      className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mb-2 px-0.5 group items-end gap-1.5`}
       onMouseEnter={() => isOwn && !deleted && setShowUnsend(true)}
       onMouseLeave={() => setShowUnsend(false)}
     >
+      {!isOwn && message.senderId && (
+        <Avatar
+          src={message.senderId.profilePic}
+          name={message.senderId.name}
+          size="xs"
+          className="shrink-0 mb-0.5"
+        />
+      )}
       <div
         className={`max-w-[85%] sm:max-w-[75%] px-4 py-2.5 rounded-2xl ${
           deleted

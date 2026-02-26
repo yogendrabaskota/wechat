@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import api from '@/lib/axios';
 import type { ConversationUser } from '@/store/chatStore';
+import Avatar from './Avatar';
 
 interface SearchUserProps {
   onSelectUser: (user: ConversationUser) => void;
@@ -63,12 +64,13 @@ export default function SearchUser({ onSelectUser }: SearchUserProps) {
                   setQuery('');
                   setResults([]);
                 }}
-                className="w-full text-left px-3 py-3 min-h-[48px] rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 active:opacity-90 flex justify-between items-center gap-2"
+                className="w-full text-left px-3 py-3 min-h-[48px] rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 active:opacity-90 flex items-center gap-3"
               >
-                <span className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                <Avatar src={user.profilePic} name={user.name} size="sm" className="shrink-0" />
+                <span className="flex-1 min-w-0 font-medium text-gray-900 dark:text-gray-100 truncate">
                   {user.name}
                 </span>
-                <span className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[40%]">
+                <span className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[40%] shrink-0">
                   {user.email}
                 </span>
               </button>

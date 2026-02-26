@@ -15,20 +15,20 @@ const getOrCreateConversation = async (req, res, next) => {
     }
     let conversation = await Conversation.findOne({
       members: { $all: [currentUserId, receiverId] },
-    }).populate('members', '_id name email');
+    }).populate('members', '_id name email profilePic');
     if (!conversation) {
       conversation = await Conversation.create({
         members: [currentUserId, receiverId],
       });
       conversation = await Conversation.findById(conversation._id).populate(
         'members',
-        '_id name email'
+        '_id name email profilePic'
       );
     }
     const messages = await Message.find({ conversationId: conversation._id })
       .sort({ createdAt: 1 })
-      .populate('senderId', '_id name')
-      .populate('receiverId', '_id name')
+      .populate('senderId', '_id name profilePic')
+      .populate('receiverId', '_id name profilePic')
       .lean();
     res.json({ conversation, messages });
   } catch (err) {
@@ -62,8 +62,8 @@ const sendMessage = async (req, res, next) => {
       text: text.trim(),
     });
     const populated = await Message.findById(message._id)
-      .populate('senderId', '_id name')
-      .populate('receiverId', '_id name')
+      .populate('senderId', '_id name profilePic')
+      .populate('receiverId', '_id name profilePic')
       .lean();
     res.status(201).json(populated);
   } catch (err) {

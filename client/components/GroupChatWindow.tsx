@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/axios';
 import GroupMessageBubble from './GroupMessageBubble';
 import GroupInfoModal from './GroupInfoModal';
+import Avatar from './Avatar';
 
 export default function GroupChatWindow() {
   const { user, token } = useAuthStore();
@@ -89,6 +90,12 @@ export default function GroupChatWindow() {
           </svg>
           <span className="text-sm">Back</span>
         </button>
+        <Avatar
+          src={activeGroup.profilePic}
+          name={activeGroup.name}
+          size="sm"
+          className="shrink-0 w-10 h-10 md:w-8 md:h-8 rounded-full bg-purple-500 dark:bg-purple-600 text-white [&>img]:rounded-full"
+        />
         <div
           className="flex-1 min-w-0 cursor-pointer"
           onClick={() => setInfoOpen(true)}

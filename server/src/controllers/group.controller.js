@@ -2,13 +2,14 @@ const Group = require('../models/Group');
 const GroupMessage = require('../models/GroupMessage');
 const Notification = require('../models/Notification');
 const User = require('../models/User');
+const { uploadGroupProfilePic } = require('../utils/uploadProfilePic');
 
 const listMy = async (req, res, next) => {
   try {
     const groups = await Group.find({ members: req.user._id })
-      .populate('members', '_id name email')
-      .populate('createdBy', '_id name email')
-      .populate('admins', '_id name email')
+      .populate('members', '_id name email profilePic')
+      .populate('createdBy', '_id name email profilePic')
+      .populate('admins', '_id name email profilePic')
       .sort({ updatedAt: -1 })
       .lean();
     res.json(groups);
@@ -19,15 +20,20 @@ const listMy = async (req, res, next) => {
 
 const create = async (req, res, next) => {
   try {
-    const { name, memberIds } = req.body;
+    const { name, memberIds, profilePic: profilePicBase64 } = req.body;
     if (!name || !name.trim()) {
       return res.status(400).json({ message: 'Group name is required' });
+    }
+    let profilePicUrl = null;
+    if (profilePicBase64) {
+      profilePicUrl = await uploadGroupProfilePic(profilePicBase64);
     }
     const group = await Group.create({
       name: name.trim(),
       createdBy: req.user._id,
       members: [req.user._id],
       admins: [req.user._id],
+      profilePic: profilePicUrl,
     });
     const ids = Array.isArray(memberIds) ? memberIds : [];
     const inviteeIds = [];
@@ -58,9 +64,9 @@ const create = async (req, res, next) => {
       }
     }
     const populated = await Group.findById(group._id)
-      .populate('members', '_id name email')
-      .populate('createdBy', '_id name email')
-      .populate('admins', '_id name email')
+      .populate('members', '_id name email profilePic')
+      .populate('createdBy', '_id name email profilePic')
+      .populate('admins', '_id name email profilePic')
       .lean();
     res.status(201).json(populated);
   } catch (err) {
@@ -170,9 +176,9 @@ const promoteToAdmin = async (req, res, next) => {
     }
     await group.save();
     const populated = await Group.findById(group._id)
-      .populate('members', '_id name email')
-      .populate('createdBy', '_id name email')
-      .populate('admins', '_id name email')
+      .populate('members', '_id name email profilePic')
+      .populate('createdBy', '_id name email profilePic')
+      .populate('admins', '_id name email profilePic')
       .lean();
     res.json(populated);
   } catch (err) {
@@ -183,9 +189,9 @@ const promoteToAdmin = async (req, res, next) => {
 const getOne = async (req, res, next) => {
   try {
     const group = await Group.findById(req.params.id)
-      .populate('members', '_id name email')
-      .populate('createdBy', '_id name email')
-      .populate('admins', '_id name email')
+      .populate('members', '_id name email profilePic')
+      .populate('createdBy', '_id name email profilePic')
+      .populate('admins', '_id name email profilePic')
       .lean();
     if (!group) {
       return res.status(404).json({ message: 'Group not found' });
@@ -212,7 +218,7 @@ const getMessages = async (req, res, next) => {
     }
     const messages = await GroupMessage.find({ groupId: group._id })
       .sort({ createdAt: 1 })
-      .populate('senderId', '_id name')
+      .populate('senderId', '_id name profilePic')
       .lean();
     res.json(messages);
   } catch (err) {

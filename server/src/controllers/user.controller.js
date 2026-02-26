@@ -15,7 +15,7 @@ const searchUsers = async (req, res, next) => {
       _id: { $ne: req.user._id },
       $or: [{ name: search }, { email: search }],
     })
-      .select('_id name email')
+      .select('_id name email profilePic')
       .limit(20)
       .lean();
     res.json(users);

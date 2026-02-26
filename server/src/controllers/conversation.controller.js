@@ -5,7 +5,7 @@ const listMyConversations = async (req, res, next) => {
     const conversations = await Conversation.find({
       members: req.user._id,
     })
-      .populate('members', '_id name email')
+      .populate('members', '_id name email profilePic')
       .sort({ updatedAt: -1 })
       .lean();
     res.json(conversations);

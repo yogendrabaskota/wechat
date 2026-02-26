@@ -1,9 +1,18 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import api from '@/lib/axios';
 import type { ConversationUser } from '@/store/chatStore';
 import { useChatStore } from '@/store/chatStore';
+import Avatar from './Avatar';
+
+const fileToBase64 = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+  });
 
 interface CreateGroupModalProps {
   open: boolean;
@@ -17,8 +26,11 @@ export default function CreateGroupModal({ open, onClose }: CreateGroupModalProp
   const [searchResults, setSearchResults] = useState<ConversationUser[]>([]);
   const [searching, setSearching] = useState(false);
   const [groupName, setGroupName] = useState('');
+  const [groupPicFile, setGroupPicFile] = useState<File | null>(null);
+  const [groupPicPreview, setGroupPicPreview] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
+  const groupPicInputRef = useRef<HTMLInputElement>(null);
   const { prependGroup, setActiveGroup, setGroupMessages, setMobileListVisible } = useChatStore();
 
   const search = useCallback(async () => {
@@ -56,6 +68,13 @@ export default function CreateGroupModal({ open, onClose }: CreateGroupModalProp
     setStep(2);
   };
 
+  const handleGroupPicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    setGroupPicFile(file);
+    setGroupPicPreview(URL.createObjectURL(file));
+  };
+
   const handleCreate = async () => {
     const name = groupName.trim();
     if (!name) {
@@ -65,9 +84,12 @@ export default function CreateGroupModal({ open, onClose }: CreateGroupModalProp
     setError('');
     setCreating(true);
     try {
+      let profilePicBase64: string | undefined;
+      if (groupPicFile) profilePicBase64 = await fileToBase64(groupPicFile);
       const { data } = await api.post<Parameters<typeof prependGroup>[0]>('/api/groups', {
         name,
         memberIds: selected.map((u) => u._id),
+        ...(profilePicBase64 && { profilePic: profilePicBase64 }),
       });
       prependGroup(data);
       setActiveGroup(data);
@@ -77,6 +99,8 @@ export default function CreateGroupModal({ open, onClose }: CreateGroupModalProp
       setStep(1);
       setSelected([]);
       setGroupName('');
+      setGroupPicFile(null);
+      setGroupPicPreview(null);
       const { data: messages } = await api.get<Parameters<typeof setGroupMessages>[0]>(
         `/api/groups/${data._id}/messages`
       );
@@ -92,6 +116,14 @@ export default function CreateGroupModal({ open, onClose }: CreateGroupModalProp
   const handleBack = () => {
     setStep(1);
     setError('');
+    setGroupPicFile(null);
+    setGroupPicPreview(null);
+  };
+
+  const handleClose = () => {
+    onClose();
+    setGroupPicFile(null);
+    setGroupPicPreview(null);
   };
 
   if (!open) return null;
@@ -105,7 +137,7 @@ export default function CreateGroupModal({ open, onClose }: CreateGroupModalProp
           </h2>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -193,6 +225,48 @@ export default function CreateGroupModal({ open, onClose }: CreateGroupModalProp
               >
                 ← Back
               </button>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Group picture (optional)
+                </label>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-14 h-14 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 shrink-0">
+                    {groupPicPreview ? (
+                      <img src={groupPicPreview} alt="Group" className="w-full h-full object-cover" />
+                    ) : (
+                      <Avatar name={groupName || 'G'} size="lg" className="w-14 h-14" />
+                    )}
+                  </div>
+                  <div>
+                    <input
+                      ref={groupPicInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleGroupPicChange}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => groupPicInputRef.current?.click()}
+                      className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      Choose image
+                    </button>
+                    {groupPicFile && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setGroupPicFile(null);
+                          setGroupPicPreview(null);
+                        }}
+                        className="block text-sm text-gray-500 hover:underline mt-0.5"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Group name
               </label>

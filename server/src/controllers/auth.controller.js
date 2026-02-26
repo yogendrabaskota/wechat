@@ -1,9 +1,10 @@
 const User = require('../models/User');
 const { generateToken } = require('../utils/generateToken');
+const { uploadUserProfilePic } = require('../utils/uploadProfilePic');
 
 const register = async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, profilePic: profilePicBase64 } = req.body;
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'Name, email and password are required' });
     }
@@ -11,7 +12,11 @@ const register = async (req, res, next) => {
     if (existing) {
       return res.status(400).json({ message: 'Email already registered' });
     }
-    const user = await User.create({ name, email, password });
+    let profilePicUrl = null;
+    if (profilePicBase64) {
+      profilePicUrl = await uploadUserProfilePic(profilePicBase64);
+    }
+    const user = await User.create({ name, email, password, profilePic: profilePicUrl });
     const token = generateToken(user._id);
     res.cookie('token', token, {
       httpOnly: true,
@@ -20,7 +25,7 @@ const register = async (req, res, next) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     res.status(201).json({
-      user: { _id: user._id, name: user.name, email: user.email },
+      user: { _id: user._id, name: user.name, email: user.email, profilePic: user.profilePic },
       token,
     });
   } catch (err) {
@@ -50,7 +55,7 @@ const login = async (req, res, next) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     res.json({
-      user: { _id: user._id, name: user.name, email: user.email },
+      user: { _id: user._id, name: user.name, email: user.email, profilePic: user.profilePic },
       token,
     });
   } catch (err) {

@@ -2,8 +2,8 @@ import { create } from 'zustand';
 
 export interface Message {
   _id: string;
-  senderId: { _id: string; name: string };
-  receiverId: { _id: string; name: string };
+  senderId: { _id: string; name: string; profilePic?: string | null };
+  receiverId: { _id: string; name: string; profilePic?: string | null };
   conversationId: string;
   text: string;
   seen: boolean;
@@ -16,6 +16,7 @@ export interface ConversationUser {
   _id: string;
   name: string;
   email: string;
+  profilePic?: string | null;
 }
 
 export interface Conversation {
@@ -28,6 +29,7 @@ export interface GroupMember {
   _id: string;
   name: string;
   email: string;
+  profilePic?: string | null;
 }
 
 export interface Group {
@@ -36,13 +38,14 @@ export interface Group {
   createdBy: GroupMember;
   members: GroupMember[];
   admins?: GroupMember[];
+  profilePic?: string | null;
   createdAt?: string;
 }
 
 export interface GroupMessage {
   _id: string;
   groupId: string;
-  senderId: { _id: string; name: string } | null;
+  senderId: { _id: string; name: string; profilePic?: string | null } | null;
   text: string;
   createdAt: string;
   type?: 'message' | 'system';
@@ -54,7 +57,7 @@ export interface NotificationItem {
   _id: string;
   type: string;
   fromUserId: ConversationUser;
-  groupId?: { _id: string; name: string };
+  groupId?: { _id: string; name: string; profilePic?: string | null };
   message?: string;
   createdAt: string;
 }

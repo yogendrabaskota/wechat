@@ -1,11 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import api from '@/lib/axios';
 import { useAuthStore } from '@/store/authStore';
 import { getSocket } from '@/lib/socket';
+import Avatar from '@/components/Avatar';
+
+const fileToBase64 = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+  });
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -13,18 +22,38 @@ export default function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [profilePicFile, setProfilePicFile] = useState<File | null>(null);
+  const [profilePicPreview, setProfilePicPreview] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    setProfilePicFile(file);
+    const url = URL.createObjectURL(file);
+    setProfilePicPreview(url);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const { data } = await api.post<{ user: { _id: string; name: string; email: string }; token: string }>(
-        '/api/auth/register',
-        { name, email, password }
-      );
+      let profilePicBase64: string | undefined;
+      if (profilePicFile) {
+        profilePicBase64 = await fileToBase64(profilePicFile);
+      }
+      const { data } = await api.post<{
+        user: { _id: string; name: string; email: string; profilePic?: string | null };
+        token: string;
+      }>('/api/auth/register', {
+        name,
+        email,
+        password,
+        ...(profilePicBase64 && { profilePic: profilePicBase64 }),
+      });
       setAuth(data.user, data.token);
       getSocket(data.token);
       router.push('/chat');
@@ -71,6 +100,46 @@ export default function RegisterPage() {
               required
               className="w-full min-h-[48px] px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-base focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Profile picture (optional)</label>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-14 h-14 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700">
+                {profilePicPreview ? (
+                  <img src={profilePicPreview} alt="Preview" className="w-full h-full object-cover" />
+                ) : (
+                  <Avatar name={name || '?'} size="lg" className="w-14 h-14" />
+                )}
+              </div>
+              <div className="flex-1">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  Choose image
+                </button>
+                {profilePicFile && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProfilePicFile(null);
+                      setProfilePicPreview(null);
+                    }}
+                    className="block text-sm text-gray-500 hover:underline mt-0.5"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
           <div>
             <label htmlFor="password" className="block text-sm font-medium mb-1">

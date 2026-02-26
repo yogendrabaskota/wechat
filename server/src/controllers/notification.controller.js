@@ -13,8 +13,8 @@ const listMy = async (req, res, next) => {
     })
       .sort({ createdAt: -1 })
       .limit(50)
-      .populate('fromUserId', '_id name email')
-      .populate('groupId', '_id name')
+      .populate('fromUserId', '_id name email profilePic')
+      .populate('groupId', '_id name profilePic')
       .lean();
     res.json(notifications);
   } catch (err) {

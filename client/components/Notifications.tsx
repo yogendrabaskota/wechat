@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import api from '@/lib/axios';
 import { useChatStore, type NotificationItem } from '@/store/chatStore';
+import Avatar from './Avatar';
 
 export default function Notifications() {
   const [open, setOpen] = useState(false);
@@ -82,7 +83,7 @@ export default function Notifications() {
               {notifications.map((n) => (
                 <li
                   key={n._id}
-                  className={`p-3 rounded-lg border border-gray-100 dark:border-gray-600 ${
+                  className={`p-3 rounded-lg border border-gray-100 dark:border-gray-600 flex gap-2 ${
                     n.type === 'group_invite_accepted'
                       ? 'bg-green-50 dark:bg-green-900/20'
                       : n.type === 'group_invite_rejected'
@@ -92,6 +93,15 @@ export default function Notifications() {
                           : 'bg-gray-50 dark:bg-gray-700/50'
                   }`}
                 >
+                  {n.fromUserId && (
+                    <Avatar
+                      src={n.fromUserId.profilePic}
+                      name={n.fromUserId.name}
+                      size="sm"
+                      className="shrink-0"
+                    />
+                  )}
+                  <div className="min-w-0 flex-1">
                   <p className="text-sm text-gray-700 dark:text-gray-300">
                     {n.message ||
                       (n.type === 'group_invite' && `${n.fromUserId?.name} invited you to a group`)}
@@ -119,6 +129,7 @@ export default function Notifications() {
                       </button>
                     </div>
                   )}
+                  </div>
                 </li>
               ))}
             </ul>
